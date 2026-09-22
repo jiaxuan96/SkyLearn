@@ -82,7 +82,6 @@ profile_default/
 ipython_config.py
 
 # pyenv
-.python-version
 
 # pipenv
 #   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
@@ -150,3 +149,7 @@ media/result_sheet/*
 # Custom
 dump.rdb
 *.DS_Store
+# Local environments and database backups
+.venv*/
+db.*.sqlite3
+db_*.sqlite3

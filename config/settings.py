@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 from decouple import config
+
+IS_RENDER = os.environ.get("RENDER") == "true"
 from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -21,14 +23,27 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config(
-    "SECRET_KEY", default="o!ld8nrt4vc*h1zoey*wj48x*q0#ss12h=+zh)kk^6b3aygg=!"
-)
+SECRET_KEY = config("SECRET_KEY", default="")
+if not SECRET_KEY:
+    if IS_RENDER:
+        raise RuntimeError("Set SECRET_KEY in the Render environment")
+    SECRET_KEY = "o!ld8nrt4vc*h1zoey*wj48x*q0#ss12h=+zh)kk^6b3aygg=!"
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config("DEBUG", default=True, cast=bool)
+DEBUG = config("DEBUG", default=not IS_RENDER, cast=bool)
+if IS_RENDER and DEBUG:
+    raise RuntimeError("DEBUG must be False on Render")
 
-ALLOWED_HOSTS = ["127.0.0.1", "adilmohak1.pythonanywhere.com"]
+RENDER_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "")
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "adilmohak1.pythonanywhere.com"]
+if RENDER_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_HOSTNAME)
+ALLOWED_HOSTS.extend(config("ALLOWED_HOSTS", default="", cast=lambda v: [h.strip() for h in v.split(",") if h.strip()]))
+CSRF_TRUSTED_ORIGINS = [f"https://{RENDER_HOSTNAME}"] if RENDER_HOSTNAME else []
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https") if IS_RENDER else None
+SESSION_COOKIE_SECURE = IS_RENDER
+CSRF_COOKIE_SECURE = IS_RENDER
+SECURE_SSL_REDIRECT = IS_RENDER
+SECURE_HSTS_SECONDS = 3600 if IS_RENDER else 0
 
 # change the default user models to our custom model
 AUTH_USER_MODEL = "accounts.User"
@@ -70,6 +85,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -77,7 +93,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.locale.LocaleMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # whitenoise to serve static files
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -107,12 +122,20 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+DATABASE_URL = config("DATABASE_URL", default="")
+if IS_RENDER and not DATABASE_URL:
+    raise RuntimeError("Set DATABASE_URL to the Render Postgres internal URL")
+if DATABASE_URL:
+    import dj_database_url
+
+    DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        }
     }
-}
 
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -189,7 +212,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # -----------------------------------
 # E-mail configuration
 
-SITE_URL = config("SITE_URL", default="http://127.0.0.1:8000")
+SITE_URL = config("SITE_URL", default=f"https://{RENDER_HOSTNAME}" if RENDER_HOSTNAME else "http://127.0.0.1:8000")
 
 EMAIL_BACKEND = config(
     "EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend"
