@@ -130,6 +130,13 @@ class StaffAddForm(UserCreationForm):
 
 
 class StudentAddForm(UserCreationForm):
+    def __init__(self, *args, self_registration=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.self_registration = self_registration
+        if self_registration:
+            for field in ("username", "password1", "password2"):
+                self.fields[field].required = True
+
     username = forms.CharField(
         max_length=30,
         widget=forms.TextInput(
@@ -254,6 +261,7 @@ class StudentAddForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.is_student = True
+        user._preserve_registration_credentials = self.self_registration
         user.first_name = self.cleaned_data.get("first_name")
         user.last_name = self.cleaned_data.get("last_name")
         user.gender = self.cleaned_data.get("gender")

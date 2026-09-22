@@ -53,7 +53,7 @@ def validate_username(request):
 
 def register(request):
     if request.method == "POST":
-        form = StudentAddForm(request.POST)
+        form = StudentAddForm(request.POST, self_registration=True)
         if form.is_valid():
             form.save()
             messages.success(request, "Account created successfully.")
@@ -62,7 +62,7 @@ def register(request):
             request, "Something is not correct, please fill all fields correctly."
         )
     else:
-        form = StudentAddForm()
+        form = StudentAddForm(self_registration=True)
     return render(request, "registration/register.html", {"form": form})
 
 

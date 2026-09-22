@@ -166,6 +166,11 @@ class MCQuestionCreate(CreateView):
 
 @method_decorator([login_required], name="dispatch")
 class QuizUserProgressView(TemplateView):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            return redirect("quiz_marking")
+        return super().dispatch(request, *args, **kwargs)
+
     template_name = "quiz/progress.html"
 
     def get_context_data(self, **kwargs):
@@ -180,7 +185,7 @@ class QuizUserProgressView(TemplateView):
 @method_decorator([login_required, lecturer_required], name="dispatch")
 class QuizMarkingList(ListView):
     model = Sitting
-    template_name = "quiz/quiz_marking_list.html"
+    template_name = "quiz/sitting_list.html"
 
     def get_queryset(self):
         queryset = Sitting.objects.filter(complete=True)

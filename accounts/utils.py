@@ -2,6 +2,7 @@ import threading
 from datetime import datetime
 from django.contrib.auth import get_user_model
 from django.conf import settings
+from django.urls import reverse
 from core.utils import send_html_email
 
 
@@ -57,6 +58,10 @@ def send_new_account_email(user, password):
         "subject": "Your SkyLearn account confirmation and credentials",
         "recipient_list": [user.email],
         "template_name": template_name,
-        "context": {"user": user, "password": password},
+        "context": {
+            "user": user,
+            "password": password,
+            "login_url": settings.SITE_URL.rstrip("/") + reverse("login"),
+        },
     }
     EmailThread(**email).start()

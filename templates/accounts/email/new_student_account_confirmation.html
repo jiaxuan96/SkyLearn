@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Account Confirmation</title>
+    <title>Your SkyLearn account</title>
     <style>
       :root {
         --padding-base: 0.5rem;
@@ -258,13 +258,13 @@
           </p>
         </div>
         <div class="card-body">
-          <h1 class="mb-5">🚀 Confirm your account</h1>
+          <h1 class="mb-5">Your SkyLearn account is ready</h1>
           <h4>Dear <b>{{ user.get_full_name }}</b>,</h4>
           <p>
             A new student account with ID of <b>{{ user.username }}</b> has been
             created for you. <br />
             You're receiving this e-mail because the SkyLearn admin has given your
-            e-mail address to register an account on skylearn.com. <br />
+            e-mail address to create your SkyLearn account. <br />
           </p>
           <h5>Login credentials for your SkyLearn account:</h5>
           <ul>
@@ -274,9 +274,9 @@
           <p>To secure your account be sure to change your password.</p>
           <p>
             <a
-              href="http://localhost:3000/auth/confirm-email?key={{ key }}"
+              href="{{ login_url }}"
               class="btn btn-primary"
-              >Confirm Email and Login</a
+              >Log in to SkyLearn</a
             >
           </p>
           <p class="text-muted small">

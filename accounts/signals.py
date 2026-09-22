@@ -9,7 +9,7 @@ def post_save_account_receiver(instance=None, created=False, *args, **kwargs):
     """
     Send email notification
     """
-    if created:
+    if created and not getattr(instance, "_preserve_registration_credentials", False):
         if instance.is_student:
             username, password = generate_student_credentials()
             instance.username = username

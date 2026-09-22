@@ -189,6 +189,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # -----------------------------------
 # E-mail configuration
 
+SITE_URL = config("SITE_URL", default="http://127.0.0.1:8000")
+
 EMAIL_BACKEND = config(
     "EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend"
 )

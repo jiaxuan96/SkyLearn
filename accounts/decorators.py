@@ -60,7 +60,7 @@ def student_required(
 
     # Define the test function: checks if the user is active and a superuser
     def test_func(user):
-        return user.is_active and user.is_student or user.is_superuser
+        return user.is_active and user.is_student and not user.is_superuser
 
     # Define the wrapper function to handle the response
     def wrapper(request, *args, **kwargs):
