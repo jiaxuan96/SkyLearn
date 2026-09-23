@@ -58,7 +58,9 @@
                 {% endif %}
 
                 <div class="d-flex align-items-center">
+{% if request.user.is_student and not request.user.is_superuser %}
                     <a class="btn btn-block btn-secondary w-100" href="{% url 'quiz_take' pk=course.pk slug=quiz.slug %}">{% trans "Start quiz" %} &raquo;</a>
+                    {% endif %}
 
                     {% if request.user.is_superuser or request.user.is_lecturer %}
                         <div class="dropup">
