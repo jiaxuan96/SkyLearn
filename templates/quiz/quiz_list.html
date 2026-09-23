@@ -67,6 +67,9 @@
                             <button class="btn btn-sm p-0 ms-2" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v m-0"></i></button>
                             <div class="dropdown-menu" aria-labelledby="dropdown01">
                                 <div class="dropdown-item">
+                                    <a href="{% url 'mc_create' slug=course.slug quiz_id=quiz.id %}"><i class="unstyled me-2 fas fa-list"></i>{% trans 'View / Add Questions' %}</a>
+                                </div>
+                                <div class="dropdown-item">
                                     <a href="{% url 'quiz_update' slug=course.slug pk=quiz.id %}" class="update"><i class="unstyled me-2 fas fa-pencil-alt"></i>{% trans 'Edit' %}</a>
                                 </div>
                                 <div class="dropdown-item">

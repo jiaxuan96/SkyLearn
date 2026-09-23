@@ -15,7 +15,7 @@
     </ol>
 </nav>
 
-<div class="title-1 mb-3">{% trans 'Add questions' %} [{{ quiz_obj|truncatechars:15 }}]</div>
+<div class="title-1 mb-3">{% trans 'View and add questions' %} [{{ quiz_obj|truncatechars:15 }}]</div>
 
 {% if formset.non_form_errors %}
 <div class="alert alert-danger">
@@ -66,6 +66,38 @@
         </button>
         <button class="btn btn-primary my-4" type="submit">{% trans 'Save' %}</button>
     </form>
+
+    <div class="card mt-4 mb-4">
+        <div class="card-header">
+            <strong>{% trans 'Existing questions' %}</strong>
+        </div>
+        <div class="card-body">
+            {% for question in quiz_obj.get_questions %}
+                <div class="mb-4 pb-3 border-bottom">
+                    <h5>{{ forloop.counter }}. {{ question.content }}</h5>
+                    {% if question.figure %}
+                        <img src="{{ question.figure.url }}" class="img-fluid mb-2" alt="{% trans 'Question image' %}">
+                    {% endif %}
+                    {% if question.explanation %}
+                        <p class="text-muted mb-2"><strong>{% trans 'Explanation' %}:</strong> {{ question.explanation }}</p>
+                    {% endif %}
+                    {% with choices=question.get_choices %}
+                        {% if choices %}
+                            <ul class="mb-0">
+                                {% for choice in choices %}
+                                    <li{% if choice.correct %} class="text-success fw-bold"{% endif %}>
+                                        {{ choice.choice_text }}{% if choice.correct %} &mdash; {% trans 'Correct answer' %}{% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            {% empty %}
+                <p class="mb-0 text-muted">{% trans 'No questions have been added yet.' %}</p>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
 {% endblock %}
