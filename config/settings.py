@@ -69,6 +69,11 @@ THIRD_PARTY_APPS = [
     "django_filters",
 ]
 
+# Cloudinary provides persistent media storage in deployed environments.
+CLOUDINARY_URL = config("CLOUDINARY_URL", default="")
+if CLOUDINARY_URL:
+    THIRD_PARTY_APPS += ["cloudinary_storage", "cloudinary"]
+
 # Custom apps
 PROJECT_APPS = [
     "core.apps.CoreConfig",
@@ -208,6 +213,18 @@ STATICFILES_FINDERS = [
 # Media files config
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+if CLOUDINARY_URL:
+    from urllib.parse import urlparse
+
+    cloudinary_credentials = urlparse(CLOUDINARY_URL)
+    CLOUDINARY_STORAGE = {
+        "CLOUD_NAME": cloudinary_credentials.hostname,
+        "API_KEY": cloudinary_credentials.username,
+        "API_SECRET": cloudinary_credentials.password,
+        "SECURE": True,
+    }
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 # -----------------------------------
 # E-mail configuration
